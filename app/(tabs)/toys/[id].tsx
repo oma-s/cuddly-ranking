@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
-import { useEffect } from 'react';
-import { ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View, Pressable, Modal, TouchableWithoutFeedback } from 'react-native';
 
 import { Colors, StatColors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -18,6 +18,7 @@ export default function ToyDetailScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
   const primaryButtonTextColor = colorScheme === 'dark' ? '#0b0612' : '#fff';
+  const [showImage, setShowImage] = useState(false);
 
   useEffect(() => {
     if (toy) {
@@ -48,14 +49,23 @@ export default function ToyDetailScreen() {
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.background }]} contentContainerStyle={styles.content}>
-      <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
-        <View style={styles.headerRow}>
-          <View style={[styles.avatar, { borderColor: theme.border }]}>
-            {toy.photoUri ? (
-              <Image source={{ uri: toy.photoUri }} style={styles.photo} contentFit="cover" />
-            ) : (
-              <Text style={[styles.avatarInitials, { color: theme.text }]}>
-                {toy.name
+        <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
+          <View style={styles.headerRow}>
+            <Pressable
+              accessibilityLabel="View full photo"
+              onPress={() => setShowImage(true)}
+              style={({ pressed }) => [
+                styles.avatar,
+                {
+                  borderColor: theme.border,
+                  transform: [{ scale: pressed ? 0.97 : 1 }],
+                },
+              ]}>
+              {toy.photoUri ? (
+                <Image source={{ uri: toy.photoUri }} style={styles.photo} contentFit="cover" />
+              ) : (
+                <Text style={[styles.avatarInitials, { color: theme.text }]}>
+                  {toy.name
                   .split(' ')
                   .map((n) => n.charAt(0))
                   .join('')
@@ -63,7 +73,7 @@ export default function ToyDetailScreen() {
                   .toUpperCase()}
               </Text>
             )}
-          </View>
+            </Pressable>
           <View style={{ flex: 1 }}>
             <Text style={[styles.title, { color: theme.text }]}>{toy.name}</Text>
             {toy.description ? (
@@ -101,6 +111,22 @@ export default function ToyDetailScreen() {
           <Text style={[styles.actionText, { color: '#ffcbcb' }]}>Delete Toy</Text>
         </Pressable>
       </View>
+      <Modal visible={showImage} transparent animationType="fade">
+        <TouchableWithoutFeedback onPress={() => setShowImage(false)}>
+          <View style={styles.modalOverlay}>
+            {toy.photoUri ? (
+              <View style={styles.fullImageFrame}>
+                <Image source={{ uri: toy.photoUri }} style={styles.fullImage} contentFit="contain" />
+              </View>
+            ) : (
+              <View style={[styles.fullImageFrame, styles.fullImagePlaceholder]}>
+                <Text style={[styles.avatarInitials, { color: '#fff', fontSize: 48 }]}>{toy.name.charAt(0)}</Text>
+                <Text style={{ color: '#fff', marginTop: 8 }}>No photo yet</Text>
+              </View>
+            )}
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </ScrollView>
   );
 }
@@ -186,5 +212,28 @@ const styles = StyleSheet.create({
   actionText: {
     fontWeight: '800',
     letterSpacing: 0.4,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(8,4,15,0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  fullImageFrame: {
+    width: '100%',
+    height: '80%',
+    borderRadius: 32,
+    backgroundColor: '#05020a',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullImage: {
+    width: '100%',
+    height: '100%',
+  },
+  fullImagePlaceholder: {
+    borderWidth: 2,
+    borderColor: '#ffffff55',
   },
 });

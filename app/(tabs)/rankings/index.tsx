@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -14,26 +15,44 @@ export default function RankingsScreen() {
 
   const rankings = getRanking(category, 10);
 
-  const renderRow = ({ item, index }: { item: ReturnType<typeof getRanking>[number]; index: number }) => (
-    <View style={[styles.row, { backgroundColor: theme.card, borderColor: theme.border }]}>
-      <View style={styles.rankBadge}>
-        <Text style={[styles.rankText, { color: theme.background }]}>{index + 1}</Text>
+  const renderRow = ({ item, index }: { item: ReturnType<typeof getRanking>[number]; index: number }) => {
+    const initials = item.name
+      .split(' ')
+      .map((piece) => piece.charAt(0))
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+
+    return (
+      <View style={[styles.row, { backgroundColor: theme.card, borderColor: theme.border }]}>
+        <View style={[styles.rankBadge, { backgroundColor: StatColors[category] ?? theme.tint }]}>
+          <Text style={[styles.rankText, { color: '#0a0412' }]}>{index + 1}</Text>
+        </View>
+        <View style={[styles.avatar, { borderColor: theme.border }]}>
+          {item.photoUri ? (
+            <Image source={{ uri: item.photoUri }} style={styles.avatarImage} contentFit="cover" />
+          ) : (
+            <Text style={[styles.avatarInitials, { color: theme.text }]}>{initials}</Text>
+          )}
+        </View>
+        <View style={styles.rowText}>
+          <Text style={[styles.rowName, { color: theme.text }]}>{item.name}</Text>
+          <Text style={[styles.rowDetail, { color: `${theme.text}88` }]} numberOfLines={1}>
+            {item.description || 'No description yet'}
+          </Text>
+        </View>
+        <View
+          style={[
+            styles.scoreBadge,
+            { borderColor: StatColors[category], backgroundColor: `${StatColors[category]}18` },
+          ]}>
+          <Text style={[styles.scoreValue, { color: StatColors[category] }]}>
+            {category === 'all' ? item.strength + item.speed + item.smartness : item[category]}
+          </Text>
+        </View>
       </View>
-      <View style={styles.rowText}>
-        <Text style={[styles.rowName, { color: theme.text }]}>{item.name}</Text>
-        <Text style={[styles.rowDetail, { color: `${theme.text}88` }]} numberOfLines={1}>
-          {item.description || 'No description yet'}
-        </Text>
-      </View>
-      <View style={[styles.scoreBadge, { borderColor: StatColors[category], backgroundColor: `${StatColors[category]}18` }]}>
-        <Text style={[styles.scoreValue, { color: StatColors[category] }]}>
-          {category === 'all'
-            ? item.strength + item.speed + item.smartness
-            : item[category]}
-        </Text>
-      </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -131,12 +150,28 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#08040f',
     alignItems: 'center',
     justifyContent: 'center',
   },
   rankText: {
     fontWeight: '900',
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+  },
+  avatarInitials: {
+    fontSize: 16,
+    fontWeight: '800',
   },
   rowText: {
     flex: 1,
