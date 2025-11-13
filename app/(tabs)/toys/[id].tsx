@@ -1,4 +1,5 @@
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -11,7 +12,7 @@ import {
   View,
 } from "react-native";
 
-import { Colors, StatColors } from "@/constants/theme";
+import { AccentGradients, Colors, StatColors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { StatMeter } from "@/src/components/StatMeter";
 import { useToysContext } from "@/src/context/ToysContext";
@@ -139,7 +140,7 @@ export default function ToyDetailScreen() {
         <Pressable
           style={({ pressed }) => [
             styles.actionButton,
-            { backgroundColor: theme.tint, opacity: pressed ? 0.85 : 1 },
+            { opacity: pressed ? 0.85 : 1 },
           ]}
           onPress={() =>
             router.push({
@@ -148,13 +149,21 @@ export default function ToyDetailScreen() {
             })
           }
         >
-          <Text style={[styles.actionText, { color: primaryButtonTextColor }]}>
-            Bearbeiten
-          </Text>
+          <LinearGradient
+            colors={AccentGradients.primary}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.actionButtonGradient}
+          >
+            <Text style={[styles.actionText, { color: primaryButtonTextColor }]}>
+              Bearbeiten
+            </Text>
+          </LinearGradient>
         </Pressable>
         <Pressable
           style={({ pressed }) => [
             styles.actionButton,
+            styles.actionButtonSolid,
             { backgroundColor: "#1d1d29", opacity: pressed ? 0.7 : 1 },
           ]}
           onPress={handleDelete}
@@ -272,8 +281,17 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     borderRadius: 16,
+    overflow: "hidden",
+  },
+  actionButtonGradient: {
     paddingVertical: 16,
     alignItems: "center",
+    borderRadius: 16,
+  },
+  actionButtonSolid: {
+    paddingVertical: 16,
+    alignItems: "center",
+    borderRadius: 16,
   },
   actionText: {
     fontWeight: "800",

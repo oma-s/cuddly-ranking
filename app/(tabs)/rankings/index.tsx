@@ -1,8 +1,9 @@
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { Colors, StatColors } from "@/constants/theme";
+import { AccentGradients, Colors, StatColors, StatGradients } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useToysContext } from "@/src/context/ToysContext";
 import { RANKING_CATEGORIES, RankingCategory } from "@/src/types/toy";
@@ -113,24 +114,35 @@ export default function RankingsScreen() {
                     style={({ pressed }) => [
                       styles.categoryChip,
                       {
-                        backgroundColor: selected
-                          ? StatColors[option.key] ?? theme.tint
-                          : theme.card,
-                        borderColor: selected
-                          ? StatColors[option.key] ?? theme.tint
-                          : theme.border,
+                        borderColor: selected ? "transparent" : theme.border,
+                        backgroundColor: selected ? "transparent" : theme.card,
                         opacity: pressed ? 0.8 : 1,
                       },
                     ]}
                   >
-                    <Text
-                      style={[
-                        styles.categoryText,
-                        { color: selected ? "#0b0515" : theme.text },
-                      ]}
-                    >
-                      {option.emoji} {option.label}
-                    </Text>
+                    {selected ? (
+                      <LinearGradient
+                        colors={
+                          StatGradients[option.key] ??
+                          AccentGradients.primary
+                        }
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.categoryChipGradient}
+                      >
+                        <Text
+                          style={[styles.categoryText, styles.categoryTextSelected]}
+                        >
+                          {option.emoji} {option.label}
+                        </Text>
+                      </LinearGradient>
+                    ) : (
+                      <View style={styles.categoryChipInner}>
+                        <Text style={[styles.categoryText, { color: theme.text }]}>
+                          {option.emoji} {option.label}
+                        </Text>
+                      </View>
+                    )}
                   </Pressable>
                 );
               })}
@@ -177,11 +189,23 @@ const styles = StyleSheet.create({
   categoryChip: {
     borderWidth: 1,
     borderRadius: 16,
+    overflow: "hidden",
+  },
+  categoryChipInner: {
     paddingHorizontal: 14,
     paddingVertical: 8,
+    borderRadius: 16,
+  },
+  categoryChipGradient: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 16,
   },
   categoryText: {
     fontWeight: "700",
+  },
+  categoryTextSelected: {
+    color: "#0b0515",
   },
   row: {
     flexDirection: "row",

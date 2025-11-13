@@ -1,3 +1,4 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useMemo } from "react";
 import {
   ActivityIndicator,
@@ -10,7 +11,7 @@ import {
 
 import { useRouter } from "expo-router";
 
-import { Colors } from "@/constants/theme";
+import { AccentGradients, Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { ToyListItem } from "@/src/components/ToyListItem";
 import { useToysContext } from "@/src/context/ToysContext";
@@ -68,19 +69,25 @@ export default function ToysIndexScreen() {
               style={({ pressed }) => [
                 styles.addButton,
                 {
-                  backgroundColor: theme.tint,
                   opacity: pressed ? 0.85 : 1,
                 },
               ]}
             >
-              <Text
-                style={[
-                  styles.addButtonText,
-                  { color: primaryButtonTextColor },
-                ]}
+              <LinearGradient
+                colors={AccentGradients.primary}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.addButtonGradient}
               >
-                + Hinzufügen
-              </Text>
+                <Text
+                  style={[
+                    styles.addButtonText,
+                    { color: primaryButtonTextColor },
+                  ]}
+                >
+                  + Hinzufügen
+                </Text>
+              </LinearGradient>
             </Pressable>
           </View>
         }
@@ -139,12 +146,16 @@ const styles = StyleSheet.create({
   addButton: {
     alignSelf: "flex-start",
     borderRadius: 999,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
     shadowColor: "#000",
     shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 3,
+    overflow: "hidden",
+  },
+  addButtonGradient: {
+    borderRadius: 999,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
   },
   addButtonText: {
     fontWeight: "800",

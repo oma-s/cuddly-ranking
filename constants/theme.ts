@@ -9,6 +9,10 @@ const sprayPink = '#ff3c7d';
 const neonLime = '#c4ff49';
 const electricBlue = '#41d1ff';
 const grapePurple = '#7a5bff';
+const heroPurple = '#6d4dff';
+const lilacGlow = '#d4c5ff';
+const crownGold = '#f7ba3c';
+const crownGoldDeep = '#d9981f';
 const charcoal = '#0d0b16';
 const asphalt = '#19162b';
 const fog = '#f5f4fb';
@@ -19,15 +23,18 @@ export const Colors = {
     text: '#12081f',
     background: fog,
     card: '#ffffff',
-    tint: sprayPink,
+    tint: heroPurple,
     icon: smoke,
     tabIconDefault: '#8f8aa8',
-    tabIconSelected: sprayPink,
+    tabIconSelected: heroPurple,
     border: '#e3dfff',
     sprayPink,
     neonLime,
     electricBlue,
     grapePurple,
+    heroPurple,
+    lilacGlow,
+    crownGold,
     charcoal,
     asphalt,
   },
@@ -35,15 +42,18 @@ export const Colors = {
     text: '#fbf7ff',
     background: charcoal,
     card: asphalt,
-    tint: neonLime,
+    tint: lilacGlow,
     icon: '#d3cfff',
     tabIconDefault: '#7a76a3',
-    tabIconSelected: neonLime,
+    tabIconSelected: lilacGlow,
     border: '#3c385a',
     sprayPink,
     neonLime,
     electricBlue,
     grapePurple,
+    heroPurple,
+    lilacGlow,
+    crownGold,
     charcoal,
     asphalt,
   },
@@ -53,7 +63,19 @@ export const StatColors = {
   strength: sprayPink,
   speed: electricBlue,
   smartness: grapePurple,
-  all: neonLime,
+  all: crownGold,
+};
+
+export const StatGradients: Record<string, string[]> = {
+  strength: ['#ff97c7', sprayPink],
+  speed: ['#63f5ff', electricBlue],
+  smartness: ['#b797ff', grapePurple],
+  all: ['#ffe18a', crownGold],
+};
+
+export const AccentGradients = {
+  primary: ['#ff8fd8', heroPurple],
+  gold: ['#ffe594', crownGoldDeep],
 };
 
 export const GraffitiGradients = {

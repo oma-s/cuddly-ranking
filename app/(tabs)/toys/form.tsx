@@ -1,4 +1,5 @@
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
@@ -14,7 +15,7 @@ import {
   View,
 } from "react-native";
 
-import { Colors, StatColors } from "@/constants/theme";
+import { AccentGradients, Colors, StatColors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { StatMeter } from "@/src/components/StatMeter";
 import { useToysContext } from "@/src/context/ToysContext";
@@ -239,14 +240,20 @@ export default function ToyFormScreen() {
           style={({ pressed }) => [
             styles.saveButton,
             {
-              backgroundColor: theme.tint,
               opacity: saving || pressed ? 0.8 : 1,
             },
           ]}
         >
-          <Text style={[styles.saveText, { color: primaryButtonTextColor }]}>
-            {saving ? "Speichern..." : "Speichern"}
-          </Text>
+          <LinearGradient
+            colors={AccentGradients.primary}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.saveButtonGradient}
+          >
+            <Text style={[styles.saveText, { color: primaryButtonTextColor }]}>
+              {saving ? "Speichern..." : "Speichern"}
+            </Text>
+          </LinearGradient>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -323,9 +330,13 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     borderRadius: 18,
+    marginTop: 12,
+    overflow: "hidden",
+  },
+  saveButtonGradient: {
     paddingVertical: 18,
     alignItems: "center",
-    marginTop: 12,
+    borderRadius: 18,
   },
   saveText: {
     fontWeight: "900",

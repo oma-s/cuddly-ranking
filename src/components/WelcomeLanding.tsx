@@ -2,7 +2,7 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { Colors } from "@/constants/theme";
+import { AccentGradients, Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
 type WelcomeLandingProps = {
@@ -63,18 +63,25 @@ export function WelcomeLanding({
             <Pressable
               style={({ pressed }) => [
                 styles.primaryButton,
-                { backgroundColor: theme.tint, opacity: pressed ? 0.85 : 1 },
+                { opacity: pressed ? 0.85 : 1 },
               ]}
               onPress={onViewToys}
             >
-              <Text
-                style={[
-                  styles.primaryButtonText,
-                  { color: primaryButtonTextColor },
-                ]}
+              <LinearGradient
+                colors={AccentGradients.primary}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.primaryButtonGradient}
               >
-                Crew
-              </Text>
+                <Text
+                  style={[
+                    styles.primaryButtonText,
+                    { color: primaryButtonTextColor },
+                  ]}
+                >
+                  Crew
+                </Text>
+              </LinearGradient>
             </Pressable>
             <Pressable
               style={({ pressed }) => [
@@ -151,9 +158,13 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   primaryButton: {
-    paddingVertical: 16,
     borderRadius: 16,
+    overflow: "hidden",
+  },
+  primaryButtonGradient: {
+    paddingVertical: 16,
     alignItems: "center",
+    borderRadius: 16,
   },
   primaryButtonText: {
     fontSize: 16,
