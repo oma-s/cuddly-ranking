@@ -30,7 +30,7 @@ export function WelcomeLanding({
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.hero}>
           <Image
-            source={require("@/assets/images/Emil_transparent.png")}
+            source={require("@/assets/images/logo_transparent.png")}
             style={styles.heroImage}
             contentFit="contain"
           />
