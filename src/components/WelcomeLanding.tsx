@@ -1,44 +1,63 @@
-import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
 type WelcomeLandingProps = {
   onViewToys: () => void;
   onSeeRankings: () => void;
 };
 
-export function WelcomeLanding({ onViewToys, onSeeRankings }: WelcomeLandingProps) {
-  const colorScheme = useColorScheme() ?? 'light';
+export function WelcomeLanding({
+  onViewToys,
+  onSeeRankings,
+}: WelcomeLandingProps) {
+  const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
-  const primaryButtonTextColor = colorScheme === 'dark' ? '#0b0612' : '#fff';
+  const primaryButtonTextColor = colorScheme === "dark" ? "#0b0612" : "#fff";
 
   return (
     <LinearGradient
-      colors={colorScheme === 'dark' ? [theme.charcoal, '#12071e'] : ['#fbe8ff', '#fefefe']}
-      style={styles.gradient}>
+      colors={
+        colorScheme === "dark"
+          ? [theme.charcoal, "#12071e"]
+          : ["#fbe8ff", "#fefefe"]
+      }
+      style={styles.gradient}
+    >
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.hero}>
           <Image
-            source={require('@/assets/images/react-logo.png')}
+            source={require("@/assets/images/react-logo.png")}
             style={styles.heroImage}
             contentFit="contain"
           />
           <View>
-            <Text style={[styles.kicker, { color: theme.tint }]}>Welcome to</Text>
-            <Text style={[styles.title, { color: theme.text }]}>Cuddly Crew</Text>
+            <Text style={[styles.kicker, { color: theme.tint }]}>
+              Wilkommen bei
+            </Text>
+            <Text style={[styles.title, { color: theme.text }]}>
+              Emil's Crew
+            </Text>
             <Text style={[styles.subtitle, { color: `${theme.text}cc` }]}>
-              Build your squad of stuffed superheroes, then see who dominates the streets.
+              Behalte den genauen Überblick über die gesamte Crew.
             </Text>
           </View>
         </View>
 
-        <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
-          <Text style={[styles.cardTitle, { color: theme.text }]}>Jump In</Text>
+        <View
+          style={[
+            styles.card,
+            { backgroundColor: theme.card, borderColor: theme.border },
+          ]}
+        >
+          <Text style={[styles.cardTitle, { color: theme.text }]}>
+            Los geht's
+          </Text>
           <Text style={[styles.cardBody, { color: `${theme.text}aa` }]}>
-            Pick a path below to start adding toys or browse the current rankings.
+            Wo möchtest du anfangen?
           </Text>
           <View style={styles.actions}>
             <Pressable
@@ -46,9 +65,15 @@ export function WelcomeLanding({ onViewToys, onSeeRankings }: WelcomeLandingProp
                 styles.primaryButton,
                 { backgroundColor: theme.tint, opacity: pressed ? 0.85 : 1 },
               ]}
-              onPress={onViewToys}>
-              <Text style={[styles.primaryButtonText, { color: primaryButtonTextColor }]}>
-                View Toys
+              onPress={onViewToys}
+            >
+              <Text
+                style={[
+                  styles.primaryButtonText,
+                  { color: primaryButtonTextColor },
+                ]}
+              >
+                Crew
               </Text>
             </Pressable>
             <Pressable
@@ -59,8 +84,11 @@ export function WelcomeLanding({ onViewToys, onSeeRankings }: WelcomeLandingProp
                   opacity: pressed ? 0.85 : 1,
                 },
               ]}
-              onPress={onSeeRankings}>
-              <Text style={[styles.secondaryButtonText, { color: theme.tint }]}>See Rankings</Text>
+              onPress={onSeeRankings}
+            >
+              <Text style={[styles.secondaryButtonText, { color: theme.tint }]}>
+                Rankings
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -77,10 +105,10 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 32,
     gap: 32,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   hero: {
-    alignItems: 'center',
+    alignItems: "center",
     gap: 16,
   },
   heroImage: {
@@ -88,22 +116,22 @@ const styles = StyleSheet.create({
     height: 140,
   },
   kicker: {
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 1.4,
-    textAlign: 'center',
+    textAlign: "center",
   },
   title: {
     fontSize: 40,
-    fontWeight: '900',
+    fontWeight: "900",
     letterSpacing: 0.8,
-    textAlign: 'center',
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
     marginTop: 8,
-    textAlign: 'center',
+    textAlign: "center",
   },
   card: {
     borderRadius: 24,
@@ -113,7 +141,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 24,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   cardBody: {
     fontSize: 15,
@@ -125,22 +153,22 @@ const styles = StyleSheet.create({
   primaryButton: {
     paddingVertical: 16,
     borderRadius: 16,
-    alignItems: 'center',
+    alignItems: "center",
   },
   primaryButtonText: {
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: 0.5,
   },
   secondaryButton: {
     paddingVertical: 14,
     borderRadius: 16,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 2,
   },
   secondaryButtonText: {
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: 0.5,
   },
 });

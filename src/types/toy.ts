@@ -1,6 +1,6 @@
-export type ToyStatKey = 'strength' | 'speed' | 'smartness';
+export type ToyStatKey = "strength" | "speed" | "smartness";
 
-export type RankingCategory = ToyStatKey | 'all';
+export type RankingCategory = ToyStatKey | "all";
 
 export interface Toy {
   id: string;
@@ -23,16 +23,20 @@ export interface ToyDraft {
   smartness: number;
 }
 
-export const RANKING_CATEGORIES: { key: RankingCategory; label: string; emoji: string }[] = [
-  { key: 'strength', label: 'Strength', emoji: '💥' },
-  { key: 'speed', label: 'Speed', emoji: '⚡️' },
-  { key: 'smartness', label: 'Smartness', emoji: '🧠' },
-  { key: 'all', label: 'All Points', emoji: '🏆' },
+export const RANKING_CATEGORIES: {
+  key: RankingCategory;
+  label: string;
+  emoji: string;
+}[] = [
+  { key: "strength", label: "Stärke", emoji: "💥" },
+  { key: "speed", label: "Geschwindigkeit", emoji: "⚡️" },
+  { key: "smartness", label: "Smartness", emoji: "🧠" },
+  { key: "all", label: "Insgesamt", emoji: "🏆" },
 ];
 
 export const emptyToyDraft = (): ToyDraft => ({
-  name: '',
-  description: '',
+  name: "",
+  description: "",
   photoUri: undefined,
   strength: 5,
   speed: 5,
