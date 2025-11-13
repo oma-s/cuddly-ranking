@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 
 import { WelcomeLanding } from '@/src/components/WelcomeLanding';
 
-export default function WelcomeScreen() {
+export default function HomeTabScreen() {
   const router = useRouter();
 
   return (
