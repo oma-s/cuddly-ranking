@@ -4,12 +4,13 @@
     "slug": "cuddly-ranking",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logo_transparent.png",
     "scheme": "cuddlyranking",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
+      "icon": "./assets/images/ios-1024.png",
       "infoPlist": {
         "NSCameraUsageDescription": "The app lets kids snap a photo of each cuddly toy.",
         "NSPhotoLibraryUsageDescription": "We show toy photos from your camera roll in their roster.",
@@ -17,11 +18,10 @@
       }
     },
     "android": {
+      "icon": "./assets/images/playstore.png",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/logo_transparent.png",
+        "backgroundColor": "#12081f"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -32,7 +32,18 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon-180.png",
+      "manifest": {
+        "icons": [
+          { "src": "./assets/images/favicon-48.png", "sizes": "48x48", "type": "image/png" },
+          { "src": "./assets/images/favicon-96.png", "sizes": "96x96", "type": "image/png" },
+          { "src": "./assets/images/favicon-180.png", "sizes": "180x180", "type": "image/png" },
+          { "src": "./assets/images/favicon-192.png", "sizes": "192x192", "type": "image/png" },
+          { "src": "./assets/images/favicon-256.png", "sizes": "256x256", "type": "image/png" },
+          { "src": "./assets/images/favicon-384.png", "sizes": "384x384", "type": "image/png" },
+          { "src": "./assets/images/favicon-512.png", "sizes": "512x512", "type": "image/png" }
+        ]
+      }
     },
     "plugins": [
       "expo-router",
