@@ -112,8 +112,8 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   heroImage: {
-    width: 220,
-    height: 220,
+    width: 260,
+    height: 260,
   },
   kicker: {
     textTransform: "uppercase",
