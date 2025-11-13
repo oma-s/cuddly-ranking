@@ -17,6 +17,7 @@ export default function ToyDetailScreen() {
   const navigation = useNavigation();
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
+  const primaryButtonTextColor = colorScheme === 'dark' ? '#0b0612' : '#fff';
 
   useEffect(() => {
     if (toy) {
@@ -89,7 +90,7 @@ export default function ToyDetailScreen() {
             { backgroundColor: theme.tint, opacity: pressed ? 0.85 : 1 },
           ]}
           onPress={() => router.push({ pathname: '/(tabs)/toys/form', params: { id: toy.id } })}>
-          <Text style={styles.actionText}>Edit Toy</Text>
+          <Text style={[styles.actionText, { color: primaryButtonTextColor }]}>Edit Toy</Text>
         </Pressable>
         <Pressable
           style={({ pressed }) => [
@@ -183,7 +184,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   actionText: {
-    color: '#fff',
     fontWeight: '800',
     letterSpacing: 0.4,
   },

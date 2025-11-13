@@ -31,6 +31,7 @@ export default function ToyFormScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
+  const primaryButtonTextColor = colorScheme === 'dark' ? '#0b0612' : '#fff';
 
   const [draft, setDraft] = useState<ToyDraft>(() => ({
     name: editingToy?.name ?? '',
@@ -202,7 +203,9 @@ export default function ToyFormScreen() {
               opacity: saving || pressed ? 0.8 : 1,
             },
           ]}>
-          <Text style={styles.saveText}>{saving ? 'Saving...' : 'Save Toy'}</Text>
+          <Text style={[styles.saveText, { color: primaryButtonTextColor }]}>
+            {saving ? 'Saving...' : 'Save Toy'}
+          </Text>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -284,7 +287,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   saveText: {
-    color: '#fff',
     fontWeight: '900',
     letterSpacing: 0.5,
     fontSize: 16,

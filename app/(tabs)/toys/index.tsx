@@ -13,6 +13,7 @@ export default function ToysIndexScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
+  const primaryButtonTextColor = colorScheme === 'dark' ? '#0b0612' : '#fff';
 
   const sortedToys = useMemo(
     () =>
@@ -54,7 +55,7 @@ export default function ToysIndexScreen() {
                   opacity: pressed ? 0.85 : 1,
                 },
               ]}>
-              <Text style={styles.addButtonText}>+ Add Toy</Text>
+              <Text style={[styles.addButtonText, { color: primaryButtonTextColor }]}>+ Add Toy</Text>
             </Pressable>
           </View>
         }
@@ -116,7 +117,6 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   addButtonText: {
-    color: '#fff',
     fontWeight: '800',
     letterSpacing: 0.5,
   },

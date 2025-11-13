@@ -10,6 +10,7 @@ export default function WelcomeScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
+  const primaryButtonTextColor = colorScheme === 'dark' ? '#0b0612' : '#fff';
 
   return (
     <LinearGradient
@@ -43,7 +44,9 @@ export default function WelcomeScreen() {
                 { backgroundColor: theme.tint, opacity: pressed ? 0.85 : 1 },
               ]}
               onPress={() => router.replace('/(tabs)/toys')}>
-              <Text style={styles.primaryButtonText}>View Toys</Text>
+              <Text style={[styles.primaryButtonText, { color: primaryButtonTextColor }]}>
+                View Toys
+              </Text>
             </Pressable>
             <Pressable
               style={({ pressed }) => [
@@ -120,7 +123,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   primaryButtonText: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '800',
     letterSpacing: 0.5,
