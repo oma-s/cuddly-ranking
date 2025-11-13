@@ -30,19 +30,19 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
     Animated.parallel([
       Animated.sequence([
         Animated.timing(scale, {
-          toValue: 1.1,
-          duration: 900,
+          toValue: 1.05,
+          duration: 800,
           useNativeDriver: true,
         }),
         Animated.timing(scale, {
-          toValue: 1,
-          duration: 500,
+          toValue: 1.2,
+          duration: 400,
           useNativeDriver: true,
         }),
       ]),
       Animated.timing(glowScale, {
-        toValue: 1.8,
-        duration: 1400,
+        toValue: 5,
+        duration: 1600,
         useNativeDriver: true,
       }),
       Animated.timing(rotate, {
@@ -53,7 +53,7 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
       Animated.timing(fade, {
         toValue: 0,
         duration: 400,
-        delay: 1400,
+        delay: 1250,
         useNativeDriver: true,
       }),
     ]).start(finishOnce);
