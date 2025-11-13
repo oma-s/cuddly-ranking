@@ -5,26 +5,61 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+const sprayPink = '#ff3c7d';
+const neonLime = '#c4ff49';
+const electricBlue = '#41d1ff';
+const grapePurple = '#7a5bff';
+const charcoal = '#0d0b16';
+const asphalt = '#19162b';
+const fog = '#f5f4fb';
+const smoke = '#2c2943';
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+    text: '#12081f',
+    background: fog,
+    card: '#ffffff',
+    tint: sprayPink,
+    icon: smoke,
+    tabIconDefault: '#8f8aa8',
+    tabIconSelected: sprayPink,
+    border: '#e3dfff',
+    sprayPink,
+    neonLime,
+    electricBlue,
+    grapePurple,
+    charcoal,
+    asphalt,
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
+    text: '#fbf7ff',
+    background: charcoal,
+    card: asphalt,
+    tint: neonLime,
+    icon: '#d3cfff',
+    tabIconDefault: '#7a76a3',
+    tabIconSelected: neonLime,
+    border: '#3c385a',
+    sprayPink,
+    neonLime,
+    electricBlue,
+    grapePurple,
+    charcoal,
+    asphalt,
   },
+} as const;
+
+export const StatColors = {
+  strength: sprayPink,
+  speed: electricBlue,
+  smartness: grapePurple,
+  all: neonLime,
+};
+
+export const GraffitiGradients = {
+  hero: ['#12071e', '#261745', '#3f0f3f'],
+  card: ['rgba(255,255,255,0.85)', 'rgba(255,255,255,0.62)'],
+  cardDark: ['rgba(32,28,52,0.9)', 'rgba(19,15,34,0.9)'],
 };
 
 export const Fonts = Platform.select({
