@@ -1,9 +1,22 @@
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Easing,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
-import { AccentGradients, Colors, StatColors, StatGradients } from "@/constants/theme";
+import {
+  AccentGradients,
+  Colors,
+  StatColors,
+  StatGradients,
+} from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useToysContext } from "@/src/context/ToysContext";
 import { RANKING_CATEGORIES, RankingCategory } from "@/src/types/toy";
@@ -15,6 +28,31 @@ export default function RankingsScreen() {
   const theme = Colors[colorScheme];
 
   const rankings = getRanking(category, 10);
+  const winnerGlow = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (category === "all") {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(winnerGlow, {
+            toValue: 1,
+            duration: 2500,
+            easing: Easing.inOut(Easing.quad),
+            useNativeDriver: true,
+          }),
+          Animated.timing(winnerGlow, {
+            toValue: 0,
+            duration: 2500,
+            easing: Easing.inOut(Easing.quad),
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    } else {
+      winnerGlow.stopAnimation();
+      winnerGlow.setValue(0);
+    }
+  }, [category, winnerGlow]);
 
   const renderRow = ({
     item,
@@ -30,6 +68,12 @@ export default function RankingsScreen() {
       .slice(0, 2)
       .toUpperCase();
 
+    const isWinner = category === "all" && index === 0;
+    const glowScale = winnerGlow.interpolate({
+      inputRange: [0, 1],
+      outputRange: [1, 1.12],
+    });
+
     return (
       <View
         style={[
@@ -37,6 +81,22 @@ export default function RankingsScreen() {
           { backgroundColor: theme.card, borderColor: theme.border },
         ]}
       >
+        {isWinner ? (
+          <>
+            <Animated.View
+              style={[
+                styles.winnerGlow,
+                {
+                  transform: [{ scale: glowScale }],
+                  opacity: winnerGlow.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.2, 0.8],
+                  }),
+                },
+              ]}
+            />
+          </>
+        ) : null}
         <View
           style={[
             styles.rankBadge,
@@ -123,22 +183,26 @@ export default function RankingsScreen() {
                     {selected ? (
                       <LinearGradient
                         colors={
-                          StatGradients[option.key] ??
-                          AccentGradients.primary
+                          StatGradients[option.key] ?? AccentGradients.primary
                         }
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 1 }}
                         style={styles.categoryChipGradient}
                       >
                         <Text
-                          style={[styles.categoryText, styles.categoryTextSelected]}
+                          style={[
+                            styles.categoryText,
+                            styles.categoryTextSelected,
+                          ]}
                         >
                           {option.emoji} {option.label}
                         </Text>
                       </LinearGradient>
                     ) : (
                       <View style={styles.categoryChipInner}>
-                        <Text style={[styles.categoryText, { color: theme.text }]}>
+                        <Text
+                          style={[styles.categoryText, { color: theme.text }]}
+                        >
                           {option.emoji} {option.label}
                         </Text>
                       </View>
@@ -214,6 +278,8 @@ const styles = StyleSheet.create({
     padding: 14,
     borderWidth: 1,
     gap: 12,
+    overflow: "hidden",
+    position: "relative",
   },
   rankBadge: {
     width: 36,
@@ -270,5 +336,51 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     fontWeight: "600",
+  },
+  winnerGlow: {
+    position: "absolute",
+    top: -2,
+    left: -2,
+    right: -2,
+    bottom: -2,
+    borderRadius: 20,
+    borderWidth: 4,
+    borderColor: "#f8d86d",
+  },
+  sparkleCluster: {
+    position: "absolute",
+    top: -12,
+    right: -4,
+    width: 90,
+    height: 90,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  sparkle: {
+    width: 16,
+    height: 16,
+    backgroundColor: "#ffe69e",
+    borderRadius: 8,
+    transform: [{ rotate: "45deg" }],
+  },
+  sparkleSecondary: {
+    position: "absolute",
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: "#fff8d6",
+    top: 18,
+    right: 24,
+    transform: [{ rotate: "45deg" }],
+  },
+  sparkleMini: {
+    position: "absolute",
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#ffffff",
+    bottom: 14,
+    right: 12,
+    transform: [{ rotate: "45deg" }],
   },
 });
