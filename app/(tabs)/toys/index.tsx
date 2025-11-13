@@ -56,7 +56,7 @@ export default function ToysIndexScreen() {
                 Deine Crew
               </Text>
               <Text style={[styles.title, { color: theme.text }]}>
-                Emil's Ranking
+                Emil&apos;s Ranking
               </Text>
               <Text style={[styles.subtitle, { color: `${theme.text}aa` }]}>
                 Klicke auf ein Crewmitglied, um es zu bearbeiten und die

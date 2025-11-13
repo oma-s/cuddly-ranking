@@ -30,7 +30,7 @@ export function WelcomeLanding({
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.hero}>
           <Image
-            source={require("@/assets/images/react-logo.png")}
+            source={require("@/assets/images/Emil_transparent.png")}
             style={styles.heroImage}
             contentFit="contain"
           />
@@ -39,7 +39,7 @@ export function WelcomeLanding({
               Wilkommen bei
             </Text>
             <Text style={[styles.title, { color: theme.text }]}>
-              Emil's Crew
+              Emil&apos;s Crew
             </Text>
             <Text style={[styles.subtitle, { color: `${theme.text}cc` }]}>
               Behalte den genauen Überblick über die gesamte Crew.
@@ -54,7 +54,7 @@ export function WelcomeLanding({
           ]}
         >
           <Text style={[styles.cardTitle, { color: theme.text }]}>
-            Los geht's
+            Los geht&apos;s
           </Text>
           <Text style={[styles.cardBody, { color: `${theme.text}aa` }]}>
             Wo möchtest du anfangen?
@@ -112,8 +112,8 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   heroImage: {
-    width: 140,
-    height: 140,
+    width: 220,
+    height: 220,
   },
   kicker: {
     textTransform: "uppercase",
