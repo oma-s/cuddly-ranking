@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
+import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -228,9 +228,17 @@ export default function ToyFormScreen() {
           />
         </View>
 
-        {renderNumberRow("strength", "Stärke (1-10)", StatColors.strength)}
-        {renderNumberRow("speed", "Geschwindigkeit (1-10)", StatColors.speed)}
-        {renderNumberRow("smartness", "Smartness (1-10)", StatColors.smartness)}
+        {renderNumberRow("strength", "Stärke (1-10) 💥", StatColors.strength)}
+        {renderNumberRow(
+          "speed",
+          "Geschwindigkeit (1-10) ⚡️",
+          StatColors.speed
+        )}
+        {renderNumberRow(
+          "smartness",
+          "Smartness (1-10) 🧠",
+          StatColors.smartness
+        )}
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 

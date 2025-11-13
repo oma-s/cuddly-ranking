@@ -46,9 +46,9 @@ export default function ToyDetailScreen() {
   }
 
   const stats = [
-    { key: "strength", label: "Stärke", value: toy.strength },
-    { key: "speed", label: "Geschwindigkeit", value: toy.speed },
-    { key: "smartness", label: "Smartness", value: toy.smartness },
+    { key: "strength", label: "Stärke 💥", value: toy.strength },
+    { key: "speed", label: "Geschwindigkeit ⚡️", value: toy.speed },
+    { key: "smartness", label: "Smartness 🧠", value: toy.smartness },
   ] as const;
 
   const handleDelete = async () => {
@@ -155,7 +155,9 @@ export default function ToyDetailScreen() {
             end={{ x: 1, y: 1 }}
             style={styles.actionButtonGradient}
           >
-            <Text style={[styles.actionText, { color: primaryButtonTextColor }]}>
+            <Text
+              style={[styles.actionText, { color: primaryButtonTextColor }]}
+            >
               Bearbeiten
             </Text>
           </LinearGradient>
