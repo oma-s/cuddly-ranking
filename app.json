@@ -18,8 +18,13 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "bundleIdentifier": "com.cuddlyranking.app",
+      "buildNumber": "1",
       "supportsTablet": true,
       "icon": "./assets/images/ios-1024.png",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "infoPlist": {
         "NSCameraUsageDescription": "The app lets kids snap a photo of each cuddly toy.",
         "NSPhotoLibraryUsageDescription": "We show toy photos from your camera roll in their roster.",
@@ -27,6 +32,8 @@
       }
     },
     "android": {
+      "package": "com.cuddlyranking.app",
+      "versionCode": 1,
       "icon": "./assets/images/playstore.png",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo_transparent.png",
@@ -36,6 +43,8 @@
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "android.permission.CAMERA",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.CAMERA",
         "android.permission.READ_MEDIA_IMAGES"
       ]
     },
@@ -44,13 +53,41 @@
       "favicon": "./assets/images/favicon-180.png",
       "manifest": {
         "icons": [
-          { "src": "./assets/images/favicon-48.png", "sizes": "48x48", "type": "image/png" },
-          { "src": "./assets/images/favicon-96.png", "sizes": "96x96", "type": "image/png" },
-          { "src": "./assets/images/favicon-180.png", "sizes": "180x180", "type": "image/png" },
-          { "src": "./assets/images/favicon-192.png", "sizes": "192x192", "type": "image/png" },
-          { "src": "./assets/images/favicon-256.png", "sizes": "256x256", "type": "image/png" },
-          { "src": "./assets/images/favicon-384.png", "sizes": "384x384", "type": "image/png" },
-          { "src": "./assets/images/favicon-512.png", "sizes": "512x512", "type": "image/png" }
+          {
+            "src": "./assets/images/favicon-48.png",
+            "sizes": "48x48",
+            "type": "image/png"
+          },
+          {
+            "src": "./assets/images/favicon-96.png",
+            "sizes": "96x96",
+            "type": "image/png"
+          },
+          {
+            "src": "./assets/images/favicon-180.png",
+            "sizes": "180x180",
+            "type": "image/png"
+          },
+          {
+            "src": "./assets/images/favicon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+          },
+          {
+            "src": "./assets/images/favicon-256.png",
+            "sizes": "256x256",
+            "type": "image/png"
+          },
+          {
+            "src": "./assets/images/favicon-384.png",
+            "sizes": "384x384",
+            "type": "image/png"
+          },
+          {
+            "src": "./assets/images/favicon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+          }
         ]
       }
     },
@@ -72,6 +109,19 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4b5d28a3-1002-4f3f-b8cd-e5d7f7e751e4"
+      },
+      "router": {}
+    },
+    "owner": "oma-s",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/4b5d28a3-1002-4f3f-b8cd-e5d7f7e751e4"
     }
   }
 }
