@@ -2,21 +2,11 @@
   "expo": {
     "name": "cuddly-ranking",
     "slug": "cuddly-ranking",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo_transparent.png",
-    "splash": {
-      "image": "./assets/images/logo_transparent.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#12071e",
-      "dark": {
-        "image": "./assets/images/logo_transparent.png",
-        "backgroundColor": "#08040f"
-      }
-    },
     "scheme": "cuddlyranking",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.cuddlyranking.app",
       "buildNumber": "1",
@@ -39,11 +29,8 @@
         "foregroundImage": "./assets/images/logo_transparent.png",
         "backgroundColor": "#12081f"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.READ_MEDIA_IMAGES",
         "android.permission.CAMERA",
         "android.permission.READ_MEDIA_IMAGES"
       ]
@@ -101,6 +88,7 @@
           "resizeMode": "contain",
           "backgroundColor": "#12071e",
           "dark": {
+            "image": "./assets/images/logo_transparent.png",
             "backgroundColor": "#08040f"
           }
         }

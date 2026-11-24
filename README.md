@@ -4,13 +4,14 @@ Weil jedes Kind mit einer ernstzunehmenden Kuscheltiersammlung eine entsprechend
 
 Die verwalten sich ja nicht von alleine. (Noch nicht)
 
-```
+Für die lokale Entwicklung verwenden wir Node.js 24 und Yarn Classic.
+
+```sh
+yarn install --frozen-lockfile
 yarn start
 ```
 
-...wäre ein guter Start
-
-und natürlich dependencies installieren.
+EAS-Befehle laufen über `yarn eas`, zum Beispiel `yarn eas --version`.
 
 ## Web-Build
 
