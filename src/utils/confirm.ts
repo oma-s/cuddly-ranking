@@ -5,13 +5,14 @@ export const confirmAction = (
   message: string
 ): Promise<boolean> => {
   return new Promise((resolve) => {
-    Alert.alert(title, message, [
-      { text: "Abbrechen", style: "cancel", onPress: () => resolve(false) },
-      {
-        text: "Ja, löschen",
-        style: "destructive",
-        onPress: () => resolve(true),
-      },
-    ]);
+    Alert.alert(
+      title,
+      message,
+      [
+        { text: "Abbrechen", style: "cancel", onPress: () => resolve(false) },
+        { text: "Ja, löschen", style: "destructive", onPress: () => resolve(true) },
+      ],
+      { cancelable: true, onDismiss: () => resolve(false) }
+    );
   });
 };
