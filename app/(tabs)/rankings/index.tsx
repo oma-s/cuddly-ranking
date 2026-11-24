@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Animated,
   Easing,
@@ -12,55 +12,62 @@ import {
 } from "react-native";
 
 import {
-  AccentGradients,
   Colors,
   StatColors,
   StatGradients,
 } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { ToyDataStatus } from "@/src/components/ToyDataStatus";
 import { useToysContext } from "@/src/context/ToysContext";
-import { RANKING_CATEGORIES, RankingCategory } from "@/src/types/toy";
+import { resolveToyPhotoUri } from "@/src/storage/toyPhotos";
+import { getToyScore, RANKING_CATEGORIES, type RankingCategory, type Toy } from "@/src/types/toy";
 
 export default function RankingsScreen() {
-  const { getRanking } = useToysContext();
+  const { toys, loadStatus, reload } = useToysContext();
   const [category, setCategory] = useState<RankingCategory>("strength");
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
 
-  const rankings = getRanking(category, 10);
-  const winnerGlow = useRef(new Animated.Value(0)).current;
+  const rankings = useMemo(() => [...toys]
+    .sort((a, b) => getToyScore(b, category) - getToyScore(a, category) || a.name.localeCompare(b.name))
+    .slice(0, 10), [toys, category]);
+  const [winnerGlow] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
-    if (category === "all") {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(winnerGlow, {
-            toValue: 1,
-            duration: 2500,
-            easing: Easing.inOut(Easing.quad),
-            useNativeDriver: true,
-          }),
-          Animated.timing(winnerGlow, {
-            toValue: 0,
-            duration: 2500,
-            easing: Easing.inOut(Easing.quad),
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-    } else {
-      winnerGlow.stopAnimation();
+    if (category !== "all") return;
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(winnerGlow, {
+          toValue: 1,
+          duration: 2500,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(winnerGlow, {
+          toValue: 0,
+          duration: 2500,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    pulse.start();
+    return () => {
+      pulse.stop();
       winnerGlow.setValue(0);
-    }
+    };
   }, [category, winnerGlow]);
+
+  if (loadStatus !== "ready") return <ToyDataStatus status={loadStatus} onRetry={reload} />;
 
   const renderRow = ({
     item,
     index,
   }: {
-    item: ReturnType<typeof getRanking>[number];
+    item: Toy;
     index: number;
   }) => {
+    const photoUri = resolveToyPhotoUri(item.photoUri);
     const initials = item.name
       .split(" ")
       .map((piece) => piece.charAt(0))
@@ -108,9 +115,9 @@ export default function RankingsScreen() {
           </Text>
         </View>
         <View style={[styles.avatar, { borderColor: theme.border }]}>
-          {item.photoUri ? (
+          {photoUri ? (
             <Image
-              source={{ uri: item.photoUri }}
+              source={{ uri: photoUri }}
               style={styles.avatarImage}
               contentFit="cover"
             />
@@ -141,9 +148,7 @@ export default function RankingsScreen() {
           ]}
         >
           <Text style={[styles.scoreValue, { color: StatColors[category] }]}>
-            {category === "all"
-              ? item.strength + item.speed + item.smartness
-              : item[category]}
+            {getToyScore(item, category)}
           </Text>
         </View>
       </View>
@@ -182,9 +187,7 @@ export default function RankingsScreen() {
                   >
                     {selected ? (
                       <LinearGradient
-                        colors={
-                          StatGradients[option.key] ?? AccentGradients.primary
-                        }
+                        colors={StatGradients[option.key]}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 1 }}
                         style={styles.categoryChipGradient}

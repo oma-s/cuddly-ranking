@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
 
 import { Colors } from "@/constants/theme";
@@ -14,10 +14,10 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
 
-  const scale = useRef(new Animated.Value(0.8)).current;
-  const glowScale = useRef(new Animated.Value(0.4)).current;
-  const rotate = useRef(new Animated.Value(0)).current;
-  const fade = useRef(new Animated.Value(1)).current;
+  const [scale] = useState(() => new Animated.Value(0.8));
+  const [glowScale] = useState(() => new Animated.Value(0.4));
+  const [rotate] = useState(() => new Animated.Value(0));
+  const [fade] = useState(() => new Animated.Value(1));
 
   const hasFinished = useRef(false);
   const finishOnce = useCallback(() => {
@@ -27,7 +27,7 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
   }, [onFinish]);
 
   useEffect(() => {
-    Animated.parallel([
+    const animation = Animated.parallel([
       Animated.sequence([
         Animated.timing(scale, {
           toValue: 1.05,
@@ -56,10 +56,16 @@ export const AnimatedSplash = ({ onFinish }: AnimatedSplashProps) => {
         delay: 1250,
         useNativeDriver: true,
       }),
-    ]).start(finishOnce);
+    ]);
+    animation.start(({ finished }) => {
+      if (finished) finishOnce();
+    });
 
     const timeout = setTimeout(finishOnce, 2200);
-    return () => clearTimeout(timeout);
+    return () => {
+      animation.stop();
+      clearTimeout(timeout);
+    };
   }, [fade, finishOnce, glowScale, rotate, scale]);
 
   return (

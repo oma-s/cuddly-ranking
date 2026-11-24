@@ -1,7 +1,7 @@
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Modal,
   Pressable,
@@ -15,19 +15,25 @@ import {
 import { AccentGradients, Colors, StatColors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { StatMeter } from "@/src/components/StatMeter";
-import { useToysContext } from "@/src/context/ToysContext";
+import { ToyDataStatus } from "@/src/components/ToyDataStatus";
+import { useToyById, useToysContext } from "@/src/context/ToysContext";
+import { resolveToyPhotoUri } from "@/src/storage/toyPhotos";
+import { getToyScore, TOY_STATS } from "@/src/types/toy";
 import { confirmAction } from "@/src/utils/confirm";
 
 export default function ToyDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { getToy, deleteToy } = useToysContext();
-  const toy = id ? getToy(id) : undefined;
+  const { loadStatus, reload, deleteToy } = useToysContext();
+  const toy = useToyById(id);
   const router = useRouter();
   const navigation = useNavigation();
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
   const primaryButtonTextColor = colorScheme === "dark" ? "#0b0612" : "#fff";
   const [showImage, setShowImage] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const deleteInProgress = useRef(false);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     if (toy) {
@@ -35,30 +41,32 @@ export default function ToyDetailScreen() {
     }
   }, [navigation, toy]);
 
-  if (!toy) {
-    return (
-      <View style={[styles.centered, { backgroundColor: theme.background }]}>
-        <Text style={[styles.missingText, { color: theme.text }]}>
-          Konnte nichts finden.
-        </Text>
-      </View>
-    );
-  }
+  if (loadStatus !== "ready") return <ToyDataStatus status={loadStatus} onRetry={reload} />;
+  if (!toy) return <ToyDataStatus status="missing" />;
 
-  const stats = [
-    { key: "strength", label: "Stärke 💥", value: toy.strength },
-    { key: "speed", label: "Geschwindigkeit ⚡️", value: toy.speed },
-    { key: "smartness", label: "Smartness 🧠", value: toy.smartness },
-  ] as const;
+  const photoUri = resolveToyPhotoUri(toy.photoUri);
 
   const handleDelete = async () => {
-    const confirmed = await confirmAction(
-      "Wirklich Löschen",
-      `${toy.name} wirklich aus deiner Crew entfernen?`
-    );
-    if (!confirmed) return;
-    await deleteToy(toy.id);
-    router.back();
+    if (deleteInProgress.current) return;
+    deleteInProgress.current = true;
+    setDeleteError("");
+    try {
+      const confirmed = await confirmAction(
+        "Wirklich löschen?",
+        `${toy.name} wirklich aus deiner Crew entfernen?`
+      );
+      if (!confirmed) return;
+
+      setDeleting(true);
+      await deleteToy(toy.id);
+      router.dismissTo("/(tabs)/toys");
+    } catch (error) {
+      console.warn("Could not delete toy", error);
+      setDeleteError("Das Crewmitglied konnte nicht gelöscht werden. Versuch es erneut.");
+    } finally {
+      deleteInProgress.current = false;
+      setDeleting(false);
+    }
   };
 
   return (
@@ -74,7 +82,7 @@ export default function ToyDetailScreen() {
       >
         <View style={styles.headerRow}>
           <Pressable
-            accessibilityLabel="View full photo"
+            accessibilityLabel="Foto in voller Größe ansehen"
             onPress={() => setShowImage(true)}
             style={({ pressed }) => [
               styles.avatar,
@@ -84,9 +92,9 @@ export default function ToyDetailScreen() {
               },
             ]}
           >
-            {toy.photoUri ? (
+            {photoUri ? (
               <Image
-                source={{ uri: toy.photoUri }}
+                source={{ uri: photoUri }}
                 style={styles.photo}
                 contentFit="cover"
               />
@@ -117,7 +125,7 @@ export default function ToyDetailScreen() {
             Alle Punkte
           </Text>
           <Text style={[styles.totalValue, { color: StatColors.all }]}>
-            {toy.strength + toy.speed + toy.smartness}
+            {getToyScore(toy, "all")}
           </Text>
         </View>
       </View>
@@ -127,17 +135,18 @@ export default function ToyDetailScreen() {
           { backgroundColor: theme.card, borderColor: theme.border, gap: 16 },
         ]}
       >
-        {stats.map((stat) => (
+        {TOY_STATS.map(({ key, label, emoji }) => (
           <StatMeter
-            key={stat.key}
-            label={stat.label}
-            value={stat.value}
-            statKey={stat.key}
+            key={key}
+            label={`${label} ${emoji}`}
+            value={toy[key]}
+            statKey={key}
           />
         ))}
       </View>
       <View style={styles.actions}>
         <Pressable
+          disabled={deleting}
           style={({ pressed }) => [
             styles.actionButton,
             { opacity: pressed ? 0.85 : 1 },
@@ -163,6 +172,8 @@ export default function ToyDetailScreen() {
           </LinearGradient>
         </Pressable>
         <Pressable
+          accessibilityRole="button"
+          disabled={deleting}
           style={({ pressed }) => [
             styles.actionButton,
             styles.actionButtonSolid,
@@ -170,16 +181,23 @@ export default function ToyDetailScreen() {
           ]}
           onPress={handleDelete}
         >
-          <Text style={[styles.actionText, { color: "#ffcbcb" }]}>Löschen</Text>
+          <Text style={[styles.actionText, { color: "#ffcbcb" }]}>
+            {deleting ? "Wird gelöscht…" : "Löschen"}
+          </Text>
         </Pressable>
       </View>
-      <Modal visible={showImage} transparent animationType="fade">
+      {deleteError ? (
+        <Text accessibilityLiveRegion="polite" style={[styles.deleteError, { color: theme.text }]}>
+          {deleteError}
+        </Text>
+      ) : null}
+      <Modal visible={showImage} transparent animationType="fade" onRequestClose={() => setShowImage(false)}>
         <TouchableWithoutFeedback onPress={() => setShowImage(false)}>
           <View style={styles.modalOverlay}>
-            {toy.photoUri ? (
+            {photoUri ? (
               <View style={styles.fullImageFrame}>
                 <Image
-                  source={{ uri: toy.photoUri }}
+                  source={{ uri: photoUri }}
                   style={styles.fullImage}
                   contentFit="contain"
                 />
@@ -216,15 +234,6 @@ const styles = StyleSheet.create({
     padding: 24,
     gap: 16,
     paddingBottom: 120,
-  },
-  centered: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  missingText: {
-    fontSize: 18,
-    fontWeight: "600",
   },
   card: {
     borderRadius: 24,
@@ -280,6 +289,9 @@ const styles = StyleSheet.create({
   actions: {
     gap: 12,
     marginTop: 8,
+  },
+  deleteError: {
+    fontWeight: "700",
   },
   actionButton: {
     borderRadius: 16,

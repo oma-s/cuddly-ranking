@@ -1,7 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useMemo } from "react";
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   StyleSheet,
@@ -13,11 +12,12 @@ import { useRouter } from "expo-router";
 
 import { AccentGradients, Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { ToyDataStatus } from "@/src/components/ToyDataStatus";
 import { ToyListItem } from "@/src/components/ToyListItem";
 import { useToysContext } from "@/src/context/ToysContext";
 
 export default function ToysIndexScreen() {
-  const { toys, loading } = useToysContext();
+  const { toys, loadStatus, reload } = useToysContext();
   const router = useRouter();
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
@@ -40,6 +40,8 @@ export default function ToysIndexScreen() {
       }
     />
   );
+
+  if (loadStatus !== "ready") return <ToyDataStatus status={loadStatus} onRetry={reload} />;
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -93,21 +95,13 @@ export default function ToysIndexScreen() {
         }
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            {loading ? (
-              <ActivityIndicator size="large" color={theme.tint} />
-            ) : (
-              <>
-                <Text style={[styles.emptyTitle, { color: theme.text }]}>
-                  Noch keine Crewmitglieder
-                </Text>
-                <Text
-                  style={[styles.emptySubtitle, { color: `${theme.text}80` }]}
-                >
-                  Beginne damit, deine Crew zu erstellen, indem du das erste
-                  Mitglied hinzufügst.
-                </Text>
-              </>
-            )}
+            <Text style={[styles.emptyTitle, { color: theme.text }]}>
+              Noch keine Crewmitglieder
+            </Text>
+            <Text style={[styles.emptySubtitle, { color: `${theme.text}80` }]}>
+              Beginne damit, deine Crew zu erstellen, indem du das erste
+              Mitglied hinzufügst.
+            </Text>
           </View>
         }
       />

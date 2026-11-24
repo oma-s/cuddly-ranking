@@ -1,10 +1,11 @@
 import { Image } from "expo-image";
-import { memo, useMemo } from "react";
+import { memo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Colors, StatColors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { Toy } from "@/src/types/toy";
+import { resolveToyPhotoUri } from "@/src/storage/toyPhotos";
+import { TOY_STATS, type Toy } from "@/src/types/toy";
 
 type ToyListItemProps = {
   toy: Toy;
@@ -15,14 +16,7 @@ export const ToyListItem = memo(({ toy, onPress }: ToyListItemProps) => {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
 
-  const chipData = useMemo(
-    () => [
-      { label: "💥", value: toy.strength, color: StatColors.strength },
-      { label: "⚡️", value: toy.speed, color: StatColors.speed },
-      { label: "🧠", value: toy.smartness, color: StatColors.smartness },
-    ],
-    [toy.speed, toy.smartness, toy.strength]
-  );
+  const photoUri = resolveToyPhotoUri(toy.photoUri);
 
   return (
     <Pressable
@@ -41,9 +35,9 @@ export const ToyListItem = memo(({ toy, onPress }: ToyListItemProps) => {
           },
         ]}
       >
-        {toy.photoUri ? (
+        {photoUri ? (
           <Image
-            source={{ uri: toy.photoUri }}
+            source={{ uri: photoUri }}
             style={styles.photo}
             contentFit="cover"
           />
@@ -69,19 +63,19 @@ export const ToyListItem = memo(({ toy, onPress }: ToyListItemProps) => {
           </Text>
         ) : null}
         <View style={styles.chips}>
-          {chipData.map((chip) => (
+          {TOY_STATS.map(({ key, emoji }) => (
             <View
-              key={chip.label}
+              key={key}
               style={[
                 styles.chip,
-                { borderColor: chip.color, backgroundColor: `${chip.color}18` },
+                { borderColor: StatColors[key], backgroundColor: `${StatColors[key]}18` },
               ]}
             >
-              <Text style={[styles.chipLabel, { color: chip.color }]}>
-                {chip.label}
+              <Text style={[styles.chipLabel, { color: StatColors[key] }]}>
+                {emoji}
               </Text>
-              <Text style={[styles.chipValue, { color: chip.color }]}>
-                {chip.value}
+              <Text style={[styles.chipValue, { color: StatColors[key] }]}>
+                {toy[key]}
               </Text>
             </View>
           ))}
