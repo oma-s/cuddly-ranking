@@ -2,9 +2,8 @@ import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -18,108 +17,103 @@ import {
 import { AccentGradients, Colors, StatColors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { StatMeter } from "@/src/components/StatMeter";
-import { useToysContext } from "@/src/context/ToysContext";
-import { ToyDraft } from "@/src/types/toy";
+import { ToyDataStatus } from "@/src/components/ToyDataStatus";
+import { useToyById, useToysContext } from "@/src/context/ToysContext";
+import { resolveToyPhotoUri } from "@/src/storage/toyPhotos";
+import { emptyToyDraft, TOY_STATS, type Toy, type ToyDraft, type ToyStatKey } from "@/src/types/toy";
 
 const numberOptions = Array.from({ length: 10 }, (_, idx) => idx + 1);
 
 export default function ToyFormScreen() {
-  const { id } = useLocalSearchParams<{ id?: string }>();
-  const { getToy, addToy, updateToy } = useToysContext();
-  const editingToy = useMemo(() => (id ? getToy(id) : undefined), [getToy, id]);
+  const { id } = useLocalSearchParams<{ id?: string | string[] }>();
+  const { loadStatus, reload } = useToysContext();
+  const editingToy = useToyById(typeof id === "string" ? id : undefined);
 
   const navigation = useNavigation();
+  useEffect(() => {
+    navigation.setOptions({ title: id === undefined ? "Neu" : "Bearbeiten" });
+  }, [id, navigation]);
+
+  if (loadStatus !== "ready") return <ToyDataStatus status={loadStatus} onRetry={reload} />;
+  if (id !== undefined && !editingToy) return <ToyDataStatus status="missing" />;
+
+  return <ToyEditor key={editingToy?.id ?? "new"} editingToy={editingToy} />;
+}
+
+function ToyEditor({ editingToy }: { editingToy?: Toy }) {
+  const { saveToy } = useToysContext();
   const router = useRouter();
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
   const primaryButtonTextColor = colorScheme === "dark" ? "#0b0612" : "#fff";
 
-  const [draft, setDraft] = useState<ToyDraft>(() => ({
-    name: editingToy?.name ?? "",
-    description: editingToy?.description ?? "",
-    photoUri: editingToy?.photoUri,
-    strength: editingToy?.strength ?? 5,
-    speed: editingToy?.speed ?? 5,
-    smartness: editingToy?.smartness ?? 5,
-  }));
+  const [draft, setDraft] = useState<ToyDraft>(() => editingToy ?? emptyToyDraft());
   const [saving, setSaving] = useState(false);
+  const saveInProgress = useRef(false);
   const [error, setError] = useState("");
+  const [photoError, setPhotoError] = useState("");
+  const photoUri = resolveToyPhotoUri(draft.photoUri);
 
-  useEffect(() => {
-    navigation.setOptions({ title: editingToy ? "Bearbeiten" : "Neu" });
-  }, [editingToy, navigation]);
-
-  useEffect(() => {
-    if (editingToy) {
-      setDraft({
-        name: editingToy.name,
-        description: editingToy.description ?? "",
-        photoUri: editingToy.photoUri,
-        strength: editingToy.strength,
-        speed: editingToy.speed,
-        smartness: editingToy.smartness,
-      });
-    }
-  }, [editingToy]);
-
-  const handleStatChange = (
-    key: keyof Pick<ToyDraft, "strength" | "speed" | "smartness">,
-    value: number
-  ) => {
+  const handleStatChange = (key: ToyStatKey, value: number) => {
     setDraft((prev) => ({ ...prev, [key]: value }));
   };
 
   const handlePhoto = async () => {
-    const { granted } = await ImagePicker.requestCameraPermissionsAsync();
-    if (!granted) {
-      Alert.alert(
-        "Kamera benötigt",
-        "Aktiviere den Kamerazugriff, um ein Foto zu machen."
-      );
-      return;
-    }
-    const result = await ImagePicker.launchCameraAsync({
-      quality: 0.6,
-      allowsEditing: true,
-      aspect: [1, 1],
-    });
-    if (!result.canceled) {
-      setDraft((prev) => ({ ...prev, photoUri: result.assets[0]?.uri }));
+    setPhotoError("");
+    try {
+      if (Platform.OS !== "web") {
+        const { granted } = await ImagePicker.requestCameraPermissionsAsync();
+        if (!granted) {
+          setPhotoError("Aktiviere den Kamerazugriff, um ein Foto zu machen.");
+          return;
+        }
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        quality: 0.6,
+        allowsEditing: true,
+        aspect: [1, 1],
+      });
+      const uri = result.assets?.[0]?.uri;
+      if (uri) setDraft((prev) => ({ ...prev, photoUri: uri }));
+    } catch (error) {
+      console.warn("Could not take toy photo", error);
+      setPhotoError("Das Foto konnte nicht aufgenommen werden.");
     }
   };
 
   const handleSave = async () => {
+    if (saveInProgress.current) return;
     if (!draft.name.trim()) {
-      setError("Name is required.");
+      setError("Gib deinem Crewmitglied einen Namen.");
       return;
     }
+
+    saveInProgress.current = true;
     setError("");
     setSaving(true);
+    let toy: Toy;
     try {
-      if (editingToy) {
-        await updateToy(editingToy.id, draft);
-        router.replace({
-          pathname: "/(tabs)/toys/[id]",
-          params: { id: editingToy.id },
-        });
-      } else {
-        const created = await addToy(draft);
-        router.replace({
-          pathname: "/(tabs)/toys/[id]",
-          params: { id: created.id },
-        });
-      }
-    } finally {
+      toy = await saveToy(draft, editingToy?.id);
+    } catch (error) {
+      console.warn("Could not save toy", error);
+      setError("Das Crewmitglied konnte nicht gespeichert werden. Versuch es erneut.");
+      saveInProgress.current = false;
       setSaving(false);
+      return;
     }
+
+    const detail = { pathname: "/(tabs)/toys/[id]", params: { id: toy.id } } as const;
+    if (editingToy) router.dismissTo(detail);
+    else router.replace(detail);
   };
 
   const renderNumberRow = (
-    key: "strength" | "speed" | "smartness",
+    key: ToyStatKey,
     label: string,
     color: string
   ) => (
-    <View style={styles.statBlock}>
+    <View key={key} style={styles.statBlock}>
       <Text style={[styles.statLabel, { color: theme.text }]}>{label}</Text>
       <View style={styles.numberRow}>
         {numberOptions.map((value) => {
@@ -171,20 +165,22 @@ export default function ToyFormScreen() {
             },
           ]}
           onPress={handlePhoto}
+          disabled={saving}
         >
-          {draft.photoUri ? (
+          {photoUri ? (
             <View style={styles.photoPreview}>
               <Image
-                source={{ uri: draft.photoUri }}
+                source={{ uri: photoUri }}
                 style={styles.previewImage}
                 contentFit="cover"
               />
             </View>
           ) : null}
           <Text style={[styles.photoText, { color: theme.text }]}>
-            {draft.photoUri ? "Foto erneut aufnehmen" : "Foto machen"}
+            {photoUri ? "Foto erneut aufnehmen" : "Foto machen"}
           </Text>
         </Pressable>
+        {photoError ? <Text accessibilityLiveRegion="polite" style={styles.error}>{photoError}</Text> : null}
         <View style={styles.field}>
           <Text style={[styles.label, { color: theme.text }]}>Name *</Text>
           <TextInput
@@ -228,21 +224,14 @@ export default function ToyFormScreen() {
           />
         </View>
 
-        {renderNumberRow("strength", "Stärke (1-10) 💥", StatColors.strength)}
-        {renderNumberRow(
-          "speed",
-          "Geschwindigkeit (1-10) ⚡️",
-          StatColors.speed
-        )}
-        {renderNumberRow(
-          "smartness",
-          "Smartness (1-10) 🧠",
-          StatColors.smartness
+        {TOY_STATS.map(({ key, label, emoji }) =>
+          renderNumberRow(key, `${label} (1-10) ${emoji}`, StatColors[key])
         )}
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? <Text accessibilityLiveRegion="polite" style={styles.error}>{error}</Text> : null}
 
         <Pressable
+          accessibilityRole="button"
           onPress={handleSave}
           disabled={saving}
           style={({ pressed }) => [

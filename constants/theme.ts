@@ -66,17 +66,17 @@ export const StatColors = {
   all: crownGold,
 };
 
-export const StatGradients: Record<string, string[]> = {
+export const StatGradients = {
   strength: ['#ff97c7', sprayPink],
   speed: ['#63f5ff', electricBlue],
   smartness: ['#b797ff', grapePurple],
   all: ['#ffe18a', crownGold],
-};
+} as const;
 
 export const AccentGradients = {
   primary: ['#ff8fd8', heroPurple],
   gold: ['#ffe594', crownGoldDeep],
-};
+} as const;
 
 export const GraffitiGradients = {
   hero: ['#12071e', '#261745', '#3f0f3f'],

@@ -1,163 +1,71 @@
-import React, {
-  PropsWithChildren,
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createContext, useCallback, useContext, useEffect, useState, type PropsWithChildren } from 'react';
 
-import { loadToys, persistToys } from '@/src/storage/toyStorage';
-import { RankingCategory, Toy, ToyDraft, ToyStatKey, clampStat } from '@/src/types/toy';
+import { toyPhotoStorage } from '@/src/storage/toyPhotos';
+import { createToyStorage } from '@/src/storage/toyStorage';
+import type { Toy, ToyDraft } from '@/src/types/toy';
+
+type LoadStatus = 'loading' | 'ready' | 'error';
 
 type ToysContextValue = {
   toys: Toy[];
-  loading: boolean;
-  addToy: (draft: ToyDraft) => Promise<Toy>;
-  updateToy: (id: string, draft: ToyDraft) => Promise<Toy | undefined>;
+  loadStatus: LoadStatus;
+  reload: () => Promise<void>;
+  saveToy: (draft: ToyDraft, id?: string) => Promise<Toy>;
   deleteToy: (id: string) => Promise<void>;
-  getToy: (id: string) => Toy | undefined;
-  getRanking: (category: RankingCategory, limit?: number) => Toy[];
 };
 
 const ToysContext = createContext<ToysContextValue | undefined>(undefined);
+const toyStorage = createToyStorage(AsyncStorage, toyPhotoStorage);
 
-const buildToy = (draft: ToyDraft): Toy => {
-  const timestamp = Date.now();
-  return {
-    id: `toy-${timestamp}-${Math.random().toString(36).slice(2, 7)}`,
-    name: draft.name.trim(),
-    description: draft.description?.trim(),
-    photoUri: draft.photoUri,
-    strength: clampStat(draft.strength),
-    speed: clampStat(draft.speed),
-    smartness: clampStat(draft.smartness),
-    createdAt: timestamp,
-    updatedAt: timestamp,
-  };
-};
-
-const getValueForCategory = (toy: Toy, category: RankingCategory) => {
-  if (category === 'all') {
-    return toy.strength + toy.speed + toy.smartness;
-  }
-  return toy[category];
-};
-
-export const ToysProvider = ({ children }: PropsWithChildren) => {
+export function ToysProvider({ children }: PropsWithChildren) {
   const [toys, setToys] = useState<Toy[]>([]);
-  const [loading, setLoading] = useState(true);
-  const toysRef = useRef<Toy[]>([]);
+  const [loadStatus, setLoadStatus] = useState<LoadStatus>('loading');
 
-  const setAndPersist = useCallback(async (next: Toy[]) => {
-    toysRef.current = next;
-    setToys(next);
-    await persistToys(next);
-  }, []);
+  const load = useCallback(() => toyStorage.load().then(
+    (stored) => {
+      setToys(stored);
+      setLoadStatus('ready');
+    },
+    (error) => {
+      console.warn('Could not load toys', error);
+      setLoadStatus('error');
+    },
+  ), []);
+
+  const reload = useCallback(async () => {
+    setLoadStatus('loading');
+    await load();
+  }, [load]);
 
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const stored = await loadToys();
-        if (!mounted) return;
-        toysRef.current = stored;
-        setToys(stored);
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    })();
+    void load();
+  }, [load]);
 
-    return () => {
-      mounted = false;
-    };
+  const saveToy = useCallback(async (draft: ToyDraft, id?: string) => {
+    const saved = await toyStorage.save(draft, id);
+    setToys(saved.toys);
+    return saved.toy;
   }, []);
 
-  const addToy = useCallback(
-    async (draft: ToyDraft) => {
-      const toy = buildToy(draft);
-      await setAndPersist([...toysRef.current, toy]);
-      return toy;
-    },
-    [setAndPersist],
+  const deleteToy = useCallback(async (id: string) => {
+    setToys(await toyStorage.remove(id));
+  }, []);
+
+  return (
+    <ToysContext.Provider value={{ toys, loadStatus, reload, saveToy, deleteToy }}>
+      {children}
+    </ToysContext.Provider>
   );
+}
 
-  const updateToy = useCallback(
-    async (id: string, draft: ToyDraft) => {
-      const nextToys = toysRef.current.map((toy) =>
-        toy.id === id
-          ? {
-              ...toy,
-              name: draft.name.trim(),
-              description: draft.description?.trim(),
-              photoUri: draft.photoUri,
-              strength: clampStat(draft.strength),
-              speed: clampStat(draft.speed),
-              smartness: clampStat(draft.smartness),
-              updatedAt: Date.now(),
-            }
-          : toy,
-      );
-      const updatedToy = nextToys.find((toy) => toy.id === id);
-      await setAndPersist(nextToys);
-      return updatedToy;
-    },
-    [setAndPersist],
-  );
+export function useToysContext() {
+  const context = useContext(ToysContext);
+  if (!context) throw new Error('useToysContext must be used within a ToysProvider');
+  return context;
+}
 
-  const deleteToy = useCallback(
-    async (id: string) => {
-      await setAndPersist(toysRef.current.filter((toy) => toy.id !== id));
-    },
-    [setAndPersist],
-  );
-
-  const getToy = useCallback(
-    (id: string) => toysRef.current.find((toy) => toy.id === id),
-    [],
-  );
-
-  const getRanking = useCallback(
-    (category: RankingCategory, limit = 10) => {
-      return [...toysRef.current]
-        .sort((a, b) => {
-          const diff = getValueForCategory(b, category) - getValueForCategory(a, category);
-          if (diff !== 0) return diff;
-          return a.name.localeCompare(b.name);
-        })
-        .slice(0, limit);
-    },
-    [],
-  );
-
-  const value: ToysContextValue = {
-    toys,
-    loading,
-    addToy,
-    updateToy,
-    deleteToy,
-    getToy,
-    getRanking,
-  };
-
-  return <ToysContext.Provider value={value}>{children}</ToysContext.Provider>;
-};
-
-export const useToysContext = () => {
-  const ctx = useContext(ToysContext);
-  if (!ctx) {
-    throw new Error('useToysContext must be used within a ToysProvider');
-  }
-  return ctx;
-};
-
-export const useToyById = (id?: string) => {
+export function useToyById(id?: string) {
   const { toys } = useToysContext();
-  if (!id) return undefined;
   return toys.find((toy) => toy.id === id);
-};
-
-export const toyStats: ToyStatKey[] = ['strength', 'speed', 'smartness'];
+}

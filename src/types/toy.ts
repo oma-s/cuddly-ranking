@@ -23,16 +23,19 @@ export interface ToyDraft {
   smartness: number;
 }
 
-export const RANKING_CATEGORIES: {
-  key: RankingCategory;
-  label: string;
-  emoji: string;
-}[] = [
+export const TOY_STATS = [
   { key: "strength", label: "Stärke", emoji: "💥" },
   { key: "speed", label: "Geschwindigkeit", emoji: "⚡️" },
   { key: "smartness", label: "Smartness", emoji: "🧠" },
+] as const;
+
+export const RANKING_CATEGORIES = [
+  ...TOY_STATS,
   { key: "all", label: "Insgesamt", emoji: "🏆" },
-];
+] as const;
+
+export const getToyScore = (toy: Toy, category: RankingCategory) =>
+  category === "all" ? toy.strength + toy.speed + toy.smartness : toy[category];
 
 export const emptyToyDraft = (): ToyDraft => ({
   name: "",
